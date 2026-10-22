@@ -1,0 +1,2 @@
+total_class3,count_score_exactly_1_displayed,count_score_ge_0_999,count_score_ge_0_99,min_illicit_logit_top20,max_illicit_logit_top20,min_logit_margin_top20,max_logit_margin_top20
+157205,579,2222,5320,1.7720073461532593,6.065658092498779,14.817047119140625,21.1152286529541

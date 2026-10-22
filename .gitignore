@@ -1,0 +1,18 @@
+# raw data (about 2 GB, download separately)
+data/raw/
+data/interim/
+
+# environments and caches
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+.ipynb_checkpoints/
+.claude/
+
+# local logs and backups
+*.log
+notebooks/*.backup_*.ipynb
+
+# written reports and drafts are not published at this stage
+reports/

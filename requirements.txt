@@ -1,0 +1,21 @@
+numpy==1.26.4
+pandas==2.3.0
+scipy==1.15.3
+scikit-learn==1.6.1
+matplotlib==3.10.6
+joblib==1.4.2
+psutil
+pyarrow==20.0.0
+
+jupyter
+nbconvert==7.16.6
+nbformat==5.10.4
+ipykernel==6.29.5
+
+# torch and torch_geometric are installed separately from the PyTorch CPU
+# wheel index (see setup_venv.md) -- this project never used a GPU
+# (torch.cuda.is_available() == False throughout), so the CPU build is used:
+#   pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+#   pip install torch_geometric==2.8.0.post1
+torch==2.6.0
+torch_geometric==2.8.0.post1
