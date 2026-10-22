@@ -175,28 +175,26 @@
       <h2>What this does not show</h2>
       <div class="cols">
         <div>
-          <h3 class="sub">Limits</h3>
+          <h3 class="sub">Limits that come with the data</h3>
           <ul class="plain">
-            <li>One GraphSAGE configuration and one chronological split.</li>
-            <li>Illicit prevalence falls from 11.58% to 4.61% between training and test.</li>
-            <li>Random Forest is stronger on precision, F1 and PR-AUC, and it has not been trained on feature set B.</li>
-            <li>The meaning of most inherited features is unverified.</li>
-            <li>Ablations are associations, because the feature families overlap (TMP1 and TMP7 correlate at 0.999).</li>
-            <li>The unknown class has no ground truth.</li>
-            <li>Attribution measures model sensitivity, not cause.</li>
-            <li>A high score does not establish illicit activity.</li>
+            <li>Only 22.85% of transactions are labelled, and the unknown class has no ground truth.</li>
+            <li>Illicit prevalence falls from 11.58% in training to 4.61% in test. That shift belongs to the dataset.</li>
+            <li>Every edge joins transactions of the same time step, so the order inside a step cannot be recovered.</li>
+            <li>147 of the 166 inherited features have no verified meaning.</li>
+            <li>965 transactions have no address records, so their address-based features are missing.</li>
+            <li>The edge files hold no per-address BTC values, so value-based features cannot be rebuilt from time-safe data.</li>
+            <li>The 13 audited features are a temporal-availability concern, not proven leakage. The original construction code is not available.</li>
           </ul>
         </div>
         <div>
-          <h3 class="sub">What we would do next</h3>
+          <h3 class="sub">Limits that come with the method</h3>
           <ul class="plain">
-            <li>Train Random Forest and gradient boosting on feature set B.</li>
-            <li>Evaluate on several time boundaries.</li>
-            <li>Report precision among the top k flagged labelled transactions.</li>
-            <li>Check how much the 1-input, 1-output, first-appearance rule explains on the test split. In labelled data it covers 3,694 transactions and 2,897 are illicit.</li>
-            <li>Run ten seeds and repeat attribution with other baselines.</li>
-            <li>Audit the 150 inherited features not examined in depth.</li>
-            <li>Compare each transaction with labelled ones from the same time step.</li>
+            <li>One GraphSAGE configuration and one chronological split.</li>
+            <li>Random Forest, run on the 184-feature set, is stronger on precision, F1 and PR-AUC.</li>
+            <li>Ablations are associations, because the feature families overlap (TMP1 and TMP7 correlate at 0.999).</li>
+            <li>Attribution measures model sensitivity, not cause.</li>
+            <li>Scores saturate: 579 print as exactly 1.000000, so ranking uses logit margins.</li>
+            <li>A high score is a reason to investigate. It does not establish illicit activity.</li>
           </ul>
         </div>
       </div>

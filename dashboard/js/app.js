@@ -35,7 +35,7 @@
     { id: "experiments", label: "Experiments", scene: "bars", cap: ["Test results as bars", "Each column is one experiment, built from the same nodes. Taller means a higher value of the chosen metric."] },
     { id: "unknown", label: "Unknown scoring", scene: "risk", cap: ["Risk of unknown nodes", "Height is the illicit-risk score. Nodes above the plane are flagged. The sample follows the real score distribution."] },
     { id: "analyzer", label: "Analyzer", scene: "case", cap: ["One transaction", "The selected node stands for one of the real top-20 cases. Its numbers are on the right."] },
-    { id: "limits", label: "Limits", scene: "overview", cap: ["Back to the graph", "Limits, next steps and the plots behind the numbers."] }
+    { id: "limits", label: "Limits", scene: "overview", cap: ["Back to the graph", "Limits of the data and the method, and the plots behind the numbers."] }
   ];
   var byId = {}; SCENES.forEach(function (s) { byId[s.id] = s; });
   var current = null;
