@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bitcoin Transaction Forensics</title>
+  <meta name="description" content="Interactive walkthrough of a graph model that ranks unknown Bitcoin transactions, with every experiment, failure and result from the project.">
+  <link rel="preload" href="fonts/Geist-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="scene" aria-hidden="true"></canvas>
+  <div id="labels" aria-hidden="true"></div>
+  <div id="tip" role="status" aria-live="polite"></div>
+
+  <header class="top">
+    <a class="brand" href="#hero">Bitcoin Transaction Forensics</a>
+    <div class="top-right">
+      <span class="course">CSE4074 Forensic Analytics, VIT Chennai</span>
+      <button class="btn ghost" id="theme" type="button" aria-label="Switch colour theme">Light</button>
+    </div>
+  </header>
+
+  <nav class="rail" aria-label="Sections" id="rail"></nav>
+
+  <aside class="caption" id="caption" aria-live="polite">
+    <h3 id="cap-title">Illustrative graph</h3>
+    <p id="cap-text">1,700 nodes drawn to match the real class mix and split. They are not real transactions. Click any node.</p>
+    <ul class="legend">
+      <li><i class="k unk"></i>unknown</li>
+      <li><i class="k lic"></i>licit</li>
+      <li><i class="k ill"></i>illicit or flagged</li>
+    </ul>
+  </aside>
+
+  <main id="main">
+    <section id="hero" class="hero" data-scene="overview">
+      <h1>Bitcoin transaction forensics</h1>
+      <p class="lede">A graph model ranks 157,205 unknown transactions. Every flag comes with evidence you can check.</p>
+      <div class="cta">
+        <a class="btn primary" href="#facts" data-go="facts">See the pipeline</a>
+        <a class="btn" href="#analyzer" data-go="analyzer">Try the analyzer</a>
+      </div>
+    </section>
+
+    <section id="facts" class="panel" data-scene="data">
+      <h2>What the data looks like</h2>
+      <p>Elliptic++ is a graph of Bitcoin transactions. Only 22.85% of them carry a label, and the illicit ones are 2.23% of all nodes.</p>
+      <dl class="stats">
+        <div><dt>transactions</dt><dd data-count="203769">203,769</dd></div>
+        <div><dt>directed edges</dt><dd data-count="234355">234,355</dd></div>
+        <div><dt>time steps</dt><dd data-count="49">49</dd></div>
+        <div><dt>unknown class</dt><dd data-count="157205">157,205</dd></div>
+      </dl>
+      <div class="seg" role="img" aria-label="Class mix: 2.23 percent illicit, 20.62 percent licit, 77.15 percent unknown">
+        <span class="s-ill" style="flex:2.23"></span><span class="s-lic" style="flex:20.62"></span><span class="s-unk" style="flex:77.15"></span>
+      </div>
+      <p class="small">Illicit 4,545 (2.23%), licit 42,019 (20.62%), unknown 157,205 (77.15%). Unknown is never treated as licit.</p>
+      <ul class="plain">
+        <li>965 transactions have all 17 augmented features missing, and they have no address records.</li>
+        <li>All 234,355 edges join two transactions of the same time step.</li>
+        <li>The illicit share among labelled transactions falls from 11.58% in training to 4.61% in test.</li>
+      </ul>
+    </section>
+
+    <section id="split" class="panel" data-scene="time">
+      <h2>Split by time, never at random</h2>
+      <p>A forensic model works on later activity than it learned from. No edge crosses the three periods, so a node never reads a neighbour from another period.</p>
+      <div class="row" id="split-btns" role="group" aria-label="Highlight a period">
+        <button class="btn" type="button" data-split="train">Train</button>
+        <button class="btn" type="button" data-split="val">Validation</button>
+        <button class="btn" type="button" data-split="test">Test</button>
+        <button class="btn ghost" type="button" data-split="">All</button>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Period</th><th>Time steps</th><th>Labelled</th><th>Illicit share</th><th>Edges inside</th></tr></thead>
+        <tbody>
+          <tr data-row="train"><td>Training</td><td>1 to 34</td><td>29,894</td><td>11.58%</td><td>156,843</td></tr>
+          <tr data-row="val"><td>Validation</td><td>35 to 41</td><td>7,829</td><td>8.62%</td><td>35,360</td></tr>
+          <tr data-row="test"><td>Test</td><td>42 to 49</td><td>8,841</td><td>4.61%</td><td>42,152</td></tr>
+        </tbody>
+      </table>
+      <p class="small">Edges between different periods: 0.</p>
+    </section>
+
+    <section id="leak" class="panel" data-scene="leak">
+      <h2>Could the inherited features know the future?</h2>
+      <p>Random Forest leaned on address-history features, so we checked when that information could have existed. Open each step.</p>
+      <ol class="steps" id="leak-steps"></ol>
+    </section>
+
+    <section id="features" class="panel" data-scene="features">
+      <h2>Fourteen features that only use the past</h2>
+      <p>Each is built from history up to the transaction's own time step. Pick a family and watch its features orbit a node.</p>
+      <div class="row" id="fam-btns" role="group" aria-label="Feature family"></div>
+      <table class="tbl" id="fam-table"><thead><tr><th>Feature</th><th>Meaning</th><th>Boundary</th></tr></thead><tbody></tbody></table>
+      <p class="small">TMP6 is undefined for 84.53% of transactions, so a first-appearance flag keeps that fact. An early version measured address age from one role only and gave 0 where 5 was correct. Fixing it changed 3,174 TMP1 values and 688 TMP2 values.</p>
+    </section>
+
+    <section id="scaling" class="panel" data-scene="scale">
+      <h2>The scaler that broke training</h2>
+      <p>Validation loss was in the hundreds of thousands. A few features had almost no spread in training, and RobustScaler divides by that spread.</p>
+      <div class="row" id="scale-btns" role="group" aria-label="Scaler">
+        <button class="btn" type="button" data-variant="robust" aria-pressed="true">RobustScaler</button>
+        <button class="btn" type="button" data-variant="qt" aria-pressed="false">QuantileTransformer</button>
+      </div>
+      <div class="vs">
+        <div id="vs-a"><span class="mono big" id="vs-big">2.29 × 10<sup>10</sup></span><span class="small" id="vs-sub">largest scaled value, Local_feature_37 (raw maximum 13.85, IQR 1.22e-8)</span></div>
+        <table class="tbl compact">
+          <thead><tr><th>Seed 42, set B</th><th>RobustScaler</th><th>Quantile</th></tr></thead>
+          <tbody>
+            <tr><td>Validation PR-AUC</td><td>0.4585</td><td>0.8923</td></tr>
+            <tr><td>Threshold resolved</td><td>no (0.99)</td><td>yes (0.90)</td></tr>
+            <tr><td>Test precision</td><td>0.2252</td><td>0.6080</td></tr>
+            <tr><td>Test F1</td><td>0.2912</td><td>0.5162</td></tr>
+            <tr><td>Test PR-AUC</td><td>0.1877</td><td>0.5063</td></tr>
+            <tr><td>Loss from top 1% of nodes</td><td>100%</td><td>37.6%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">The raw values were small. At least 75% of training rows shared one value, so the scaler's divisor was almost zero. Over four seeds the mean test PR-AUC went from 0.2212 to 0.5165.</p>
+    </section>
+
+    <section id="model" class="panel" data-scene="model">
+      <h2>How the graph model reads a transaction</h2>
+      <p>Each GraphSAGE layer averages a transaction's neighbours into its own features. Two layers reach two hops. Click any node in the scene to send a message through it.</p>
+      <ul class="plain two">
+        <li>Two SAGEConv layers, 186 inputs, 64 hidden units, 2 output logits</li>
+        <li>ReLU and dropout 0.3 between the layers</li>
+        <li>Class-weighted loss, weights 0.5655 licit and 4.3174 illicit</li>
+        <li>Adam, learning rate 0.01, weight decay 0.0005</li>
+        <li>Stop when validation PR-AUC stalls for 30 epochs, at most 200</li>
+        <li>Threshold searched on validation only, from 0.10 to 0.99</li>
+      </ul>
+      <div class="inspect" id="inspect"><span class="small">No node selected.</span></div>
+    </section>
+
+    <section id="experiments" class="panel wide" data-scene="bars">
+      <h2>Everything we tried</h2>
+      <p id="exp-intro">Audits, baselines, model runs and fixes, with why we ran each one and what it taught us. Select one to light its bar.</p>
+      <div class="row" id="metric-btns" role="group" aria-label="Metric shown by the bars">
+        <button class="btn" type="button" data-metric="pr" aria-pressed="true">PR-AUC</button>
+        <button class="btn" type="button" data-metric="f1" aria-pressed="false">F1</button>
+        <button class="btn" type="button" data-metric="roc" aria-pressed="false">ROC-AUC</button>
+      </div>
+      <div class="row chips" id="exp-filters" role="group" aria-label="Filter experiments"></div>
+      <ul class="exps" id="exp-list"></ul>
+      <h3 class="sub">Test-period comparison</h3>
+      <p class="small">Click a column to sort and a row to light its bar. Seeds above 1 show means. Random Forest leads on PR-AUC and F1.</p>
+      <div class="scroll"><table class="tbl sortable" id="cmp"><thead></thead><tbody></tbody></table></div>
+    </section>
+
+    <section id="unknown" class="panel" data-scene="risk">
+      <h2>Scoring the unknown class</h2>
+      <p>The frozen model scored all 157,205 unknown transactions. Move the threshold and watch the flagged count.</p>
+      <label class="slide" for="thr">Threshold <output id="thr-out" class="mono">0.90</output></label>
+      <input id="thr" type="range" min="0.5" max="0.99" step="0.01" value="0.9">
+      <dl class="stats three">
+        <div><dt>flagged</dt><dd id="thr-count">12,344</dd></div>
+        <div><dt>share of unknown</dt><dd id="thr-pct">7.85%</dd></div>
+        <div><dt>in the 3D sample</dt><dd id="thr-sample">0</dd></div>
+      </dl>
+      <p class="small">At 0.90 this is a prioritisation list, not an illicit rate. On the labelled test period the same threshold had precision 0.608. 579 scores print as exactly 1.000000, yet the top 20 have logit margins from 14.82 to 21.12, so rank by margin.</p>
+      <figure class="plate"><img src="img/class3_score_distribution.png" alt="Histogram of the illicit-risk score of the 157,205 unknown transactions on a log count axis" width="910" height="585" loading="lazy"><figcaption>Score distribution of the unknown class (project output).</figcaption></figure>
+    </section>
+
+    <section id="analyzer" class="panel wide" data-scene="case">
+      <h2>Ask about one transaction</h2>
+      <p>These are the 20 highest-scoring unknown transactions, with real values from the project's output files. Pick one.</p>
+      <div class="row chips" id="case-list" role="group" aria-label="Top 20 transactions"></div>
+      <div class="case" id="case-detail"></div>
+    </section>
+
+    <section id="limits" class="panel wide" data-scene="overview">
+      <h2>What this does not show</h2>
+      <div class="cols">
+        <div>
+          <h3 class="sub">Limits</h3>
+          <ul class="plain">
+            <li>One GraphSAGE configuration and one chronological split.</li>
+            <li>Illicit prevalence falls from 11.58% to 4.61% between training and test.</li>
+            <li>Random Forest is stronger on precision, F1 and PR-AUC, and it has not been trained on feature set B.</li>
+            <li>The meaning of most inherited features is unverified.</li>
+            <li>Ablations are associations, because the feature families overlap (TMP1 and TMP7 correlate at 0.999).</li>
+            <li>The unknown class has no ground truth.</li>
+            <li>Attribution measures model sensitivity, not cause.</li>
+            <li>A high score does not establish illicit activity.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="sub">What we would do next</h3>
+          <ul class="plain">
+            <li>Train Random Forest and gradient boosting on feature set B.</li>
+            <li>Evaluate on several time boundaries.</li>
+            <li>Report precision among the top k flagged labelled transactions.</li>
+            <li>Check how much the 1-input, 1-output, first-appearance rule explains on the test split. In labelled data it covers 3,694 transactions and 2,897 are illicit.</li>
+            <li>Run ten seeds and repeat attribution with other baselines.</li>
+            <li>Audit the 150 inherited features not examined in depth.</li>
+            <li>Compare each transaction with labelled ones from the same time step.</li>
+          </ul>
+        </div>
+      </div>
+      <h3 class="sub">Attribution on the eight representative cases</h3>
+      <figure class="plate wide-plate"><img src="img/top_feature_attributions.png" alt="Ten largest absolute attributions per representative case, as horizontal bars" width="1950" height="1248" loading="lazy"><figcaption>Largest changes in the illicit logit when one input is replaced by its baseline. TMP5 is in the top ten for 7 of 8 cases.</figcaption></figure>
+      <figure class="plate wide-plate"><img src="img/gnn_training_curves.png" alt="Validation PR-AUC, ROC-AUC and F1 per epoch for the seven RobustScaler experiments" width="2000" height="800" loading="lazy"><figcaption>Validation curves of the seven RobustScaler experiments. They are noisy and the best epochs are early.</figcaption></figure>
+    </section>
+
+    <footer class="foot">
+      <p>Developed as part of the course on "Forensic Analytics" at Vellore Institute of Technology, Chennai, by Krishna Koushik and Peta Siva Nandhan Reddy. Subject code CSE4074, Fall 2026-27. Professor: Dr. S. Johanan Joysingh.</p>
+      <p class="small">Dataset: Elliptic++ (Elmougy and Liu, KDD 2023). The 3D scene is an illustrative sample, not real transactions. Fonts: Geist (SIL OFL). 3D: three.js (MIT).</p>
+    </footer>
+  </main>
+
+  <script src="vendor/three.min.js"></script>
+  <script src="assets/data.js"></script>
+  <script src="assets/experiments.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
